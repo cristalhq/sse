@@ -5,7 +5,9 @@
 [![Go Report Card][reportcard-img]][reportcard-url]
 [![Coverage][coverage-img]][coverage-url]
 
-SSE library for Go.
+Server-Sent Events (SSE) library for Go.
+
+See https://www.w3.org/TR/eventsource for the technical specification.
 
 ## Features
 
