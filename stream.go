@@ -20,6 +20,16 @@ func (s *Stream) Flush() {
 	s.flusher.Flush()
 }
 
+// Close sends close event with empth data.
+func (s *Stream) Close() error {
+	_, err := s.w.Write([]byte("event:close\ndata:\n\n"))
+	s.Flush()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *Stream) WriteJSON(id, event string, v interface{}) error {
 	raw, err := json.Marshal(v)
 	if err != nil {
@@ -57,6 +67,6 @@ func (s *Stream) WriteRaw(data []byte) error {
 
 func (s *Stream) write(data []byte) error {
 	_, err := s.w.Write(data)
-		s.flusher.Flush()
+	s.flusher.Flush()
 	return err
 }
