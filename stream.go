@@ -3,13 +3,11 @@ package sse
 import (
 	"encoding/json"
 	"io"
-	"net"
 	"net/http"
 	"strconv"
 )
 
 type Stream struct {
-	conn      net.Conn
 	w         io.Writer
 	flusher   http.Flusher
 	autoFlush bool
@@ -64,12 +62,4 @@ func (s *Stream) write(data []byte) error {
 		s.flusher.Flush()
 	}
 	return err
-}
-
-// httpError is like the http.Error with additional headers.
-func httpError(w http.ResponseWriter, body string, code int) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.Header().Set("Content-Length", strconv.Itoa(len(body)))
-	w.WriteHeader(code)
-	w.Write([]byte(body))
 }
