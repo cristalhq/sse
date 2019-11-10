@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func Test(t *testing.T) {
+func TestUpgrader(t *testing.T) {
 	const msg = "test-ok\n"
 
 	server := newServer(func(w http.ResponseWriter, r *http.Request) {
@@ -49,5 +49,7 @@ func newServer(h func(w http.ResponseWriter, r *http.Request)) *httptest.Server 
 func newStreamRequest(url string) *http.Request {
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Accept", "text/event-stream")
+	req.Header.Set("Cache-Control", "no-cache")
+	req.Header.Set("Connection", "keep-alive")
 	return req
 }
