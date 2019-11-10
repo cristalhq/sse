@@ -8,9 +8,8 @@ import (
 )
 
 type Stream struct {
-	w         io.Writer
-	flusher   http.Flusher
-	autoFlush bool
+	w       io.Writer
+	flusher http.Flusher
 }
 
 type BinaryMarshaler interface {
@@ -58,8 +57,6 @@ func (s *Stream) WriteRaw(data []byte) error {
 
 func (s *Stream) write(data []byte) error {
 	_, err := s.w.Write(data)
-	if s.autoFlush {
 		s.flusher.Flush()
-	}
 	return err
 }
