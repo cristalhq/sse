@@ -55,6 +55,11 @@ func (s *Stream) WriteBytes(id, event string, raw []byte) error {
 	return s.write(data)
 }
 
+func (s *Stream) WriteString(id, event string, data string) error {
+	raw := encode(id, event, []byte(data))
+	return s.write(raw)
+}
+
 func (s *Stream) WriteInt(id, event string, num int64) error {
 	str := strconv.FormatInt(num, 10)
 	data := encode(id, event, []byte(str))
