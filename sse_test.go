@@ -11,7 +11,7 @@ func TestUpgrader(t *testing.T) {
 	const msg = "test-ok\n"
 
 	server := newServer(func(w http.ResponseWriter, r *http.Request) {
-		u := Upgrader{Autoflush: true}
+		u := Upgrader{}
 
 		stream, err := u.UpgradeHTTP(r, w)
 		if err != nil {
