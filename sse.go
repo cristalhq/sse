@@ -5,7 +5,9 @@ import (
 	"time"
 )
 
-var defaultUpgrader Upgrader
+var defaultUpgrader = Upgrader{
+	Autoflush: true,
+}
 
 func UpgradeHTTP(r *http.Request, w http.ResponseWriter) (*Stream, error) {
 	return defaultUpgrader.UpgradeHTTP(r, w)
@@ -14,7 +16,8 @@ func UpgradeHTTP(r *http.Request, w http.ResponseWriter) (*Stream, error) {
 var noDeadline time.Time
 
 type Upgrader struct {
-	Timeout time.Duration
+	Timeout   time.Duration
+	Autoflush bool
 }
 
 func (u Upgrader) UpgradeHTTP(r *http.Request, w http.ResponseWriter) (*Stream, error) {
@@ -51,9 +54,10 @@ func (u Upgrader) UpgradeHTTP(r *http.Request, w http.ResponseWriter) (*Stream, 
 	fl.Flush() // flush headers
 
 	s := &Stream{
-		conn:    conn,
-		w:       w,
-		flusher: fl,
+		conn:      conn,
+		w:         w,
+		flusher:   fl,
+		autoFlush: u.Autoflush,
 	}
 	return s, nil
 }
