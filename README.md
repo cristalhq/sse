@@ -26,6 +26,20 @@ go get github.com/cristalhq/sse
 ## Example
 
 ```go
+http.HandleFunc("/sse", func(w http.ResponseWriter, r *http.Request) {
+    stream, err := sse.UpgradeHTTP(r, w)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    data := struct {
+        Text string `json:"text"`
+    }{
+        Text: "hey there",
+    }
+    stream.WriteJSON("123", "msg", data)
+})
 ```
 
 ## Documentation
