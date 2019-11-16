@@ -12,7 +12,7 @@ const (
 	commaAndSpace = ", "
 )
 
-func httpWriteResponseUpgrade(bw *bufio.Writer, nonce []byte, protocol string) {
+func httpWriteResponseUpgrade(bw *bufio.Writer) {
 	bw.WriteString(textStatusLine)
 
 	httpWriteHeader(bw, "Cache-Control", "no-cache")
