@@ -25,6 +25,7 @@ go get github.com/cristalhq/sse
 
 ## Example
 
+As a simple HTTP handler:
 ```go
 http.HandleFunc("/sse", func(w http.ResponseWriter, r *http.Request) {
     stream, err := sse.UpgradeHTTP(r, w)
@@ -40,6 +41,49 @@ http.HandleFunc("/sse", func(w http.ResponseWriter, r *http.Request) {
     }
     stream.WriteJSON("123", "msg", data)
 })
+```
+
+Low-level (pure TCP-connection) example:
+```go
+package main
+
+import (
+	"log"
+	"net"
+
+	"github.com/cristalhq/sse"
+)
+
+func main() {
+	ln, err := net.Listen("tcp", "localhost:8080")
+	if err != nil {
+		panic(err)
+	}
+
+	var u sse.Upgrader
+	for {
+		conn, err := ln.Accept()
+		if err != nil {
+			log.Printf("accept err: %#v", err)
+			continue
+		}
+
+		stream, err := u.Upgrade(conn)
+		if err != nil {
+			log.Printf("upgrade err: %#v", err)
+			continue
+		}
+
+		go func() {
+			defer stream.Close()
+
+			err := stream.WriteString(`123`, `info`, `hey there`)
+			if err != nil {
+				log.Printf("send err: %#v", err)
+			}
+		}()
+	}
+}
 ```
 
 ## Documentation
