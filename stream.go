@@ -80,6 +80,12 @@ func (s *Stream) WriteInt(id, event string, num int64) error {
 	return s.write(data)
 }
 
+func (s *Stream) WriteFloat(id, event string, num float64) error {
+	str := strconv.FormatFloat(num, 'f', 5, 64)
+	data := encode(id, event, []byte(str))
+	return s.write(data)
+}
+
 func (s *Stream) WriteRaw(data []byte) error {
 	return s.write(data)
 }
