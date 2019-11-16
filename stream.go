@@ -16,6 +16,10 @@ type BinaryMarshaler interface {
 	MarshalBinary() ([]byte, error)
 }
 
+type TextMarshaler interface {
+	MarshalText() ([]byte, error)
+}
+
 func (s *Stream) Flush() {
 	s.flusher.Flush()
 }
@@ -47,6 +51,16 @@ func (s *Stream) WriteMessage(id, event string, message BinaryMarshaler) error {
 	}
 
 	data := encode(id, event, raw)
+	return s.write(data)
+}
+
+func (s *Stream) WriteText(id, event string, message TextMarshaler) error {
+	text, err := message.MarshalText()
+	if err != nil {
+		return err
+	}
+
+	data := encode(id, event, text)
 	return s.write(data)
 }
 
