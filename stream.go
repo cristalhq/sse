@@ -34,6 +34,11 @@ func (s *Stream) Close() error {
 	return nil
 }
 
+func (s *Stream) SetRetry(retry time.Duration) error {
+	data := fmt.Sprintf(`retry: %v\n`, retry.Milliseconds())
+	return s.write([]byte(data))
+}
+
 func (s *Stream) WriteJSON(id, event string, v interface{}) error {
 	raw, err := json.Marshal(v)
 	if err != nil {
