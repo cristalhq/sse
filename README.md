@@ -14,6 +14,7 @@ See https://www.w3.org/TR/eventsource for the technical specification.
 * Simple API.
 * Performant.
 * Dependency-free.
+* Low-level API to build a server.
 
 ## Install
 
@@ -43,48 +44,7 @@ http.HandleFunc("/sse", func(w http.ResponseWriter, r *http.Request) {
 })
 ```
 
-Low-level (pure TCP-connection) example:
-```go
-package main
-
-import (
-	"log"
-	"net"
-
-	"github.com/cristalhq/sse"
-)
-
-func main() {
-	ln, err := net.Listen("tcp", "localhost:8080")
-	if err != nil {
-		panic(err)
-	}
-
-	var u sse.Upgrader
-	for {
-		conn, err := ln.Accept()
-		if err != nil {
-			log.Printf("accept err: %#v", err)
-			continue
-		}
-
-		stream, err := u.Upgrade(conn)
-		if err != nil {
-			log.Printf("upgrade err: %#v", err)
-			continue
-		}
-
-		go func() {
-			defer stream.Close()
-
-			err := stream.WriteString(`123`, `info`, `hey there`)
-			if err != nil {
-				log.Printf("send err: %#v", err)
-			}
-		}()
-	}
-}
-```
+See [example_test.go](https://github.com/cristalhq/sse/blob/master/example_test.go) for more.
 
 ## Documentation
 
