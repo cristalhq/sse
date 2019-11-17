@@ -49,7 +49,7 @@ func (s *Stream) WriteJSON(id, event string, v interface{}) error {
 	return s.write(data)
 }
 
-func (s *Stream) WriteMessage(id, event string, message BinaryMarshaler) error {
+func (s *Stream) WriteBinary(id, event string, message BinaryMarshaler) error {
 	raw, err := message.MarshalBinary()
 	if err != nil {
 		return err
