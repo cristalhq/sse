@@ -1,15 +1,17 @@
 package sse
 
 import (
+	"bufio"
 	"encoding/json"
+	"fmt"
 	"io"
-	"net/http"
 	"strconv"
+	"time"
 )
 
 type Stream struct {
-	w       io.Writer
-	flusher http.Flusher
+	bw *bufio.ReadWriter
+	w  io.Writer
 }
 
 type BinaryMarshaler interface {
@@ -20,8 +22,8 @@ type TextMarshaler interface {
 	MarshalText() ([]byte, error)
 }
 
-func (s *Stream) Flush() {
-	s.flusher.Flush()
+func (s *Stream) Flush() error {
+	return s.bw.Flush()
 }
 
 // Close sends close event with empth data.
@@ -96,7 +98,9 @@ func (s *Stream) WriteRaw(data []byte) error {
 }
 
 func (s *Stream) write(data []byte) error {
-	_, err := s.w.Write(data)
-	s.flusher.Flush()
-	return err
+	_, err := s.bw.Write(data)
+	if err != nil {
+		return err
+	}
+	return s.bw.Flush()
 }
