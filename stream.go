@@ -29,76 +29,98 @@ func (s *Stream) Flush() error {
 // Close sends close event with empth data.
 func (s *Stream) Close() error {
 	_, err := s.w.Write([]byte("event:close\ndata:\n\n"))
-	s.Flush()
 	if err != nil {
 		return err
 	}
-	return nil
+	return s.Flush()
 }
 
 func (s *Stream) SetRetry(retry time.Duration) error {
-	data := fmt.Sprintf(`retry: %v\n`, retry.Milliseconds())
-	return s.write([]byte(data))
+	data := fmt.Sprintf("retry:%v\n", retry.Milliseconds())
+	_, err := s.bw.Write([]byte(data))
+	return err
 }
 
-func (s *Stream) WriteJSON(id, event string, v interface{}) error {
+func (s *Stream) SetID(id int64) error {
+	str := strconv.FormatInt(id, 10)
+	data := []byte("id:" + str + "\n")
+	_, err := s.bw.Write(data)
+	return err
+}
+
+func (s *Stream) SetEvent(event string) error {
+	data := []byte("event:" + event + "\n")
+	_, err := s.bw.Write(data)
+	return err
+}
+
+func (s *Stream) WriteEvent(id int64, event string, data []byte) error {
+	if err := s.SetID(id); err != nil {
+		return err
+	}
+	if err := s.SetEvent(event); err != nil {
+		return err
+	}
+	if err := s.WriteBytes(data); err != nil {
+		return err
+	}
+	return s.Flush()
+}
+
+func (s *Stream) WriteJSON(v interface{}) error {
 	raw, err := json.Marshal(v)
 	if err != nil {
 		return err
 	}
-
-	data := encode(id, event, raw)
-	return s.write(data)
+	return s.writeData(raw)
 }
 
-func (s *Stream) WriteBinary(id, event string, message BinaryMarshaler) error {
-	raw, err := message.MarshalBinary()
+func (s *Stream) WriteBinary(message BinaryMarshaler) error {
+	data, err := message.MarshalBinary()
 	if err != nil {
 		return err
 	}
-
-	data := encode(id, event, raw)
-	return s.write(data)
+	return s.writeData(data)
 }
 
-func (s *Stream) WriteText(id, event string, message TextMarshaler) error {
+func (s *Stream) WriteText(message TextMarshaler) error {
 	text, err := message.MarshalText()
 	if err != nil {
 		return err
 	}
-
-	data := encode(id, event, text)
-	return s.write(data)
+	return s.writeData(text)
 }
 
-func (s *Stream) WriteBytes(id, event string, raw []byte) error {
-	data := encode(id, event, raw)
-	return s.write(data)
+func (s *Stream) WriteBytes(data []byte) error {
+	return s.writeData(data)
 }
 
-func (s *Stream) WriteString(id, event string, data string) error {
-	raw := encode(id, event, []byte(data))
-	return s.write(raw)
+func (s *Stream) WriteString(data string) error {
+	return s.writeData([]byte(data))
 }
 
-func (s *Stream) WriteInt(id, event string, num int64) error {
+func (s *Stream) WriteInt(num int64) error {
 	str := strconv.FormatInt(num, 10)
-	data := encode(id, event, []byte(str))
-	return s.write(data)
+	return s.writeData([]byte(str))
 }
 
-func (s *Stream) WriteFloat(id, event string, num float64) error {
+func (s *Stream) WriteFloat(num float64) error {
 	str := strconv.FormatFloat(num, 'f', 5, 64)
-	data := encode(id, event, []byte(str))
-	return s.write(data)
+	return s.writeData([]byte(str))
 }
 
-func (s *Stream) WriteRaw(data []byte) error {
-	return s.write(data)
-}
+func (s *Stream) writeData(data []byte) error {
+	size := 6 + 1 + len(data) // size of "data\n\n" + ":{data}"
+	buf := make([]byte, 0, size)
 
-func (s *Stream) write(data []byte) error {
-	_, err := s.bw.Write(data)
+	buf = append(buf, "data"...)
+	if len(data) > 0 {
+		buf = append(buf, ':')
+		buf = append(buf, data...)
+	}
+	buf = append(buf, []byte("\n\n")...)
+
+	_, err := s.bw.Write(buf)
 	if err != nil {
 		return err
 	}

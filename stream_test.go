@@ -10,14 +10,18 @@ import (
 func TestRetry(t *testing.T) {
 	s, buf := newStream()
 
-	err := s.SetRetry(1234 * time.Second)
-	if err != nil {
+	if err := s.SetRetry(1234 * time.Second); err != nil {
 		t.Fatalf("unexpected err %#v", err)
 	}
-	gotBytes := buf.Bytes()
+	if err := s.Flush(); err != nil {
+		t.Fatalf("unexpected err %#v", err)
+	}
 
-	if want := `retry: 1234000\n`; string(gotBytes) != want {
-		t.Fatalf("want %#v, got %#v", want, string(gotBytes))
+	gotBytes := buf.Bytes()
+	got := string(gotBytes)
+
+	if want := "retry:1234000\n"; got != want {
+		t.Fatalf("want %#v, got %#v", want, got)
 	}
 }
 
