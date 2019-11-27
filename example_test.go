@@ -21,7 +21,7 @@ func Example_UpgradeHTTP() {
 		}{
 			Text: "hey there",
 		}
-		stream.WriteJSON("123", "msg", data)
+		stream.WriteJSON(data)
 	})
 }
 
@@ -48,7 +48,7 @@ func Example_Upgrader() {
 		go func() {
 			defer stream.Close()
 
-			err := stream.WriteString(`123`, `info`, `hey there`)
+			err := stream.WriteString(`hey there`)
 			if err != nil {
 				log.Printf("send err: %#v", err)
 			}
