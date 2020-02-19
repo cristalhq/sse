@@ -11,6 +11,13 @@ func UpgradeHTTP(r *http.Request, w http.ResponseWriter) (*Stream, error) {
 	return defaultUpgrader.UpgradeHTTP(r, w)
 }
 
+// LastEventID returns a last ID known by user.
+// If it's not presented - empty string will be returnes
+//
+func LastEventID(r *http.Request) string {
+	return r.Header.Get("Last-Event-ID")
+}
+
 type Upgrader struct {
 	Timeout time.Duration
 }
