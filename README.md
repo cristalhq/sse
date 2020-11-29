@@ -1,9 +1,9 @@
 # sse
 
-[![Build Status][build-img]][build-url]
-[![GoDoc][doc-img]][doc-url]
-[![Go Report Card][reportcard-img]][reportcard-url]
-[![Coverage][coverage-img]][coverage-url]
+[![build-img]][build-url]
+[![pkg-img]][pkg-url]
+[![reportcard-img]][reportcard-url]
+[![coverage-img]][coverage-url]
 
 Server-Sent Events (SSE) library for Go.
 
@@ -48,7 +48,7 @@ See [example_test.go](https://github.com/cristalhq/sse/blob/master/example_test.
 
 ## Documentation
 
-See [these docs](https://godoc.org/github.com/cristalhq/sse).
+See [these docs][pkg-url].
 
 ## License
 
@@ -56,8 +56,8 @@ See [these docs](https://godoc.org/github.com/cristalhq/sse).
 
 [build-img]: https://github.com/cristalhq/sse/workflows/build/badge.svg
 [build-url]: https://github.com/cristalhq/sse/actions
-[doc-img]: https://godoc.org/github.com/cristalhq/sse?status.svg
-[doc-url]: https://godoc.org/github.com/cristalhq/sse
+[pkg-img]: https://pkg.go.dev/badge/cristalhq/sse
+[pkg-url]: https://pkg.go.dev/github.com/cristalhq/sse
 [reportcard-img]: https://goreportcard.com/badge/cristalhq/sse
 [reportcard-url]: https://goreportcard.com/report/cristalhq/sse
 [coverage-img]: https://codecov.io/gh/cristalhq/sse/branch/master/graph/badge.svg
