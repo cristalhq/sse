@@ -28,7 +28,7 @@ func (s *Stream) Flush() error {
 
 // Close sends close event with empth data.
 func (s *Stream) Close() error {
-	_, err := s.w.Write([]byte("event:close\ndata:\n\n"))
+	_, err := s.bw.Write([]byte("event:close\ndata:\n\n"))
 	if err != nil {
 		return err
 	}

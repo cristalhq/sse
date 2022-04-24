@@ -1,0 +1,233 @@
+#### Always `go fmt` your code.
+
+Community uses the official Go format, do not reinvent the wheel.
+
+Try to reduce code entropy. This will help everyone to make code easy to read.
+
+#### Multiple if-else statements can be collapsed into a switch
+
+```go
+// NOT BAD
+if foo() {
+    // ...
+} else if bar == baz {
+    // ...
+} else {
+    // ...
+}
+
+// BETTER
+switch {
+case foo():
+    // ...
+case bar == baz:
+    // ...
+default:
+    // ...
+}
+```
+
+#### To pass a signal prefer `chan struct{}` instead of `chan bool`.
+
+When you see a defenition of `chan bool` in a structure, sometimes it's not that easy to understand how this value will be used, example:
+```go
+type Service struct {
+    deleteCh chan bool // what does this bool mean? 
+}
+```
+
+But we can make it more clear by changing it to `chan struct{}` which explicitly says: we do not care about value (it's always a `struct{}`), we care about an event that might occure, example:
+```go
+type Service struct {
+    deleteCh chan struct{} // ok, if event than delete something.
+}
+```
+
+#### Prefer `30 * time.Second` instead of `time.Duration(30) * time.Second`
+
+You don't need to wrap untyped const in a type, compiler will figure it out. Also prefer to move const to the first place:
+```go
+// BAD
+delay := time.Second * 60 * 24 * 60
+
+// VERY BAD
+delay := 60 * time.Second * 60 * 24
+
+// GOOD
+delay := 24 * 60 * 60 * time.Second
+```
+
+#### Use `time.Duration` instead of `int64` + variable name
+
+```go
+// BAD
+var delayMillis int64 = 15000
+
+// GOOD
+var delay time.Duration = 15 * time.Second
+```
+
+#### Group `const` declarations by type and `var` by logic and/or type
+
+```go
+// BAD
+const (
+    foo = 1
+    bar = 2
+    message = "warn message"
+)
+
+// MOSTLY BAD
+const foo = 1
+const bar = 2
+const message = "warn message"
+
+// GOOD
+const (
+    foo = 1
+    bar = 2
+)
+
+const message = "warn message"
+```
+
+This pattern works for `var` too.
+
+- [ ] check your defer's error
+
+```go
+  defer func() {
+      err := ocp.Close()
+      if err != nil {
+          rerr = err
+      }
+  }()
+```
+
+- [ ] don't use `checkErr` function which panics or does `os.Exit`
+- [ ] use panic only in very specific situations, you have to handle error
+- [ ] don't use alias for enums 'cause this breaks type safety
+  - https://play.golang.org/p/MGbeDwtXN3
+
+```go
+  package main
+  type Status = int
+  type Format = int // remove `=` to have type safety
+
+  const A Status = 1
+  const B Format = 1
+
+  func main() {
+	println(A == B)
+  }
+```
+
+- [ ] if you're going to omit returning params, do it explicitly
+  - so prefer this ` _ = f()` to this `f()`
+- [ ] the short form for slice initialization is `a := []T{}`
+- [ ] iterate over array or slice using range loop
+  -  instead of `for i := 3; i < 7; i++ {...}` prefer `for _, c := range a[3:7] {...}`
+- [ ] use backquote(\`) for multiline strings
+- [ ] skip unused param with _
+
+```go
+  func f(a int, _ string) {}
+```
+
+- [ ] If you are comparing timestamps, use `time.Before` or `time.After`. Don't use `time.Sub` to get a duration and then check its value.
+- [ ] always pass context as a first param to a func with a `ctx` name
+- [ ] few params of the same type can be defined in a short way
+
+```go
+  func f(a int, b int, s string, p string)
+```
+
+```go
+  func f(a, b int, s, p string)
+```
+
+- [ ] the zero value of a slice is nil
+  - https://play.golang.org/p/pNT0d_Bunq
+  ```go
+    var s []int
+    fmt.Println(s, len(s), cap(s))
+    if s == nil {
+      fmt.Println("nil!")
+    }
+    // Output:
+    // [] 0 0
+    // nil!
+  ```
+  - https://play.golang.org/p/meTInNyxtk
+
+```go
+  var a []string
+  b := []string{}
+
+  fmt.Println(reflect.DeepEqual(a, []string{}))
+  fmt.Println(reflect.DeepEqual(b, []string{}))
+  // Output:
+  // false
+  // true
+```
+
+- [ ] do not compare enum types with `<`, `>`, `<=` and `>=`
+  - use explicit values, don't do this:
+
+```go
+  value := reflect.ValueOf(object)
+  kind := value.Kind()
+  if kind >= reflect.Chan && kind <= reflect.Slice {
+    // ...
+  }
+```
+
+- [ ] use `%+v` to print data with sufficient details
+- [ ] be careful with empty struct `struct{}`, see issue: https://github.com/golang/go/issues/23440
+  - more: https://play.golang.org/p/9C0puRUstrP
+
+```go
+  func f1() {
+    var a, b struct{}
+    print(&a, "\n", &b, "\n") // Prints same address
+    fmt.Println(&a == &b)     // Comparison returns false
+  }
+
+  func f2() {
+    var a, b struct{}
+    fmt.Printf("%p\n%p\n", &a, &b) // Again, same address
+    fmt.Println(&a == &b)          // ...but the comparison returns true
+  }
+```
+
+- [ ] wrap errors with http://github.com/pkg/errors
+  - so: `errors.Wrap(err, "additional message to a given error")`
+- [ ] be careful with `range` in Go:
+  - `for i := range a` and `for i, v := range &a` doesn't make a copy of `a`
+  - but `for i, v := range a` does
+  - more: https://play.golang.org/p/4b181zkB1O
+- [ ] reading nonexistent key from map will not panic
+  - `value := map["no_key"]` will be zero value
+  - `value, ok := map["no_key"]` is much better
+- [ ] do not use raw params for file operation
+  - instead of an octal parameter like `os.MkdirAll(root, 0700)`
+  - use predefined constants of this type `os.FileMode`
+- [ ] don't forget to specify a type for `iota`
+  - https://play.golang.org/p/mZZdMaI92cI
+
+```go
+  const (
+    _ = iota
+    testvar         // will be int
+  )
+```
+
+  vs
+
+```go
+  type myType int
+  const (
+    _ myType = iota
+    testvar         // will be myType
+  )
+```

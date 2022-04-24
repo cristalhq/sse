@@ -1,15 +1,23 @@
-package sse
 
-import (
-	"bufio"
-	"errors"
-	"fmt"
-	"io"
-	"net/http"
+// headerSeen constants helps to report whether or not some header was seen
+// during reading request bytes.
+const (
+	headerSeenHost = 1 << iota
+	headerSeenUpgrade
+	headerSeenConnection
+	headerSeenSecVersion
+	headerSeenSecKey
+
+	// headerSeenAll is the value that we expect to receive at the end of
+	// headers read/parse loop.
+	headerSeenAll = 0 |
+		headerSeenHost |
+		headerSeenUpgrade |
+		headerSeenConnection |
+		headerSeenSecVersion |
+		headerSeenSecKey
 )
 
-func (u Upgrader) Upgrade(conn io.ReadWriter) (*Stream, error) {
-	// return nil, nil
 
 	br := bufio.NewReaderSize(conn, 1000)
 	// br := pbufio.GetReader(conn,
@@ -225,4 +233,3 @@ func (u Upgrader) Upgrade(conn io.ReadWriter) (*Stream, error) {
 		w:  bw,
 	}
 	return s, nil
-}

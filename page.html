@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SSE Demo</title>
+    <script type="module" defer>
+      let contentbox = document.querySelector("#contentbox")
+      let src = new EventSource("http://127.0.0.1:8080/sse")
+      src.addEventListener("close", e => {
+          src.close();
+          contentbox.innerText += "close connection\n";
+      });
+      src.addEventListener("message", e => {
+        let data = JSON.parse(e.data)
+        contentbox.innerText += data.time + "\n";
+      });
+      src.addEventListener("error", e => {
+        src.close();
+        contentbox.innerText += "something went wrong.\n";
+        console.error(e);
+      });
+    </script>
+  </head>
+  <body>
+    <pre id="contentbox">Waiting for data…<br></pre>
+  </body>
+</html>
