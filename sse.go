@@ -13,7 +13,6 @@ func UpgradeHTTP(r *http.Request, w http.ResponseWriter) (*Stream, error) {
 
 // LastEventID returns a last ID known by user.
 // If it's not presented - empty string will be returnes
-//
 func LastEventID(r *http.Request) string {
 	return r.Header.Get("Last-Event-ID")
 }
@@ -29,7 +28,7 @@ func (u Upgrader) UpgradeHTTP(r *http.Request, w http.ResponseWriter) (*Stream, 
 		return nil, ErrNotHijacker
 	}
 
-	_, bw, err := hj.Hijack()
+	nc, bw, err := hj.Hijack()
 	if err != nil {
 		http.Error(w, http.ErrHijacked.Error(), http.StatusInternalServerError)
 		return nil, http.ErrHijacked
@@ -41,6 +40,7 @@ func (u Upgrader) UpgradeHTTP(r *http.Request, w http.ResponseWriter) (*Stream, 
 	}
 
 	s := &Stream{
+		nc: nc,
 		bw: bw,
 		w:  w,
 	}

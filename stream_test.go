@@ -3,6 +3,8 @@ package sse
 import (
 	"bufio"
 	"bytes"
+	"io"
+	"net/http"
 	"testing"
 	"time"
 )
@@ -37,4 +39,38 @@ func newStream() (*Stream, *bytes.Buffer) {
 		w:  w,
 	}
 	return s, buf
+}
+
+func TestStream_Close(t *testing.T) {
+	server := newServer(func(w http.ResponseWriter, r *http.Request) {
+		u := Upgrader{}
+
+		stream, err := u.UpgradeHTTP(r, w)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if err := stream.Close(); err != nil {
+			t.Fatalf("stream.Close() = %v, want nil", err)
+		}
+	})
+
+	client := http.DefaultClient
+
+	resp, err := client.Do(newStreamRequest(server.URL))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := "event:close\ndata:\n\n"
+
+	if got := string(body); got != want {
+		t.Fatalf("got %#v, want %#v", got, want)
+	}
 }

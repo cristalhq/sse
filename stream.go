@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"strconv"
 	"time"
 )
@@ -12,6 +13,7 @@ import (
 type Stream struct {
 	bw *bufio.ReadWriter
 	w  io.Writer
+	nc net.Conn
 }
 
 type BinaryMarshaler interface {
@@ -26,9 +28,11 @@ func (s *Stream) Flush() error {
 	return s.bw.Flush()
 }
 
-// Close sends close event with empth data.
+// Close sends close event with empth data and closes underlying connectioт
 func (s *Stream) Close() error {
-	_, err := s.w.Write([]byte("event:close\ndata:\n\n"))
+	defer s.nc.Close()
+
+	_, err := s.bw.Write([]byte("event:close\ndata:\n\n"))
 	if err != nil {
 		return err
 	}
