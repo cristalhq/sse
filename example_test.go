@@ -8,7 +8,7 @@ import (
 	"github.com/cristalhq/sse"
 )
 
-func Example_UpgradeHTTP() {
+func ExampleUpgradeHTTP() {
 	http.HandleFunc("/sse", func(w http.ResponseWriter, r *http.Request) {
 		stream, err := sse.UpgradeHTTP(r, w)
 		if err != nil {
@@ -25,7 +25,7 @@ func Example_UpgradeHTTP() {
 	})
 }
 
-func Example_Upgrader() {
+func ExampleUpgrader() {
 	ln, err := net.Listen("tcp", "localhost:8080")
 	if err != nil {
 		panic(err)
