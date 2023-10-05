@@ -28,7 +28,7 @@ func (s *Stream) Flush() error {
 	return s.bw.Flush()
 }
 
-// Close sends close event with empth data and closes underlying connectioт
+// Close sends close event with empty data and closes underlying connection.
 func (s *Stream) Close() error {
 	defer s.nc.Close()
 
