@@ -28,7 +28,7 @@ func (u Upgrader) UpgradeHTTP(r *http.Request, w http.ResponseWriter) (*Stream, 
 		return nil, ErrNotHijacker
 	}
 
-	_, bw, err := hj.Hijack()
+	nc, bw, err := hj.Hijack()
 	if err != nil {
 		http.Error(w, http.ErrHijacked.Error(), http.StatusInternalServerError)
 		return nil, http.ErrHijacked
@@ -40,6 +40,7 @@ func (u Upgrader) UpgradeHTTP(r *http.Request, w http.ResponseWriter) (*Stream, 
 	}
 
 	s := &Stream{
+		nc: nc,
 		bw: bw,
 		w:  w,
 	}
